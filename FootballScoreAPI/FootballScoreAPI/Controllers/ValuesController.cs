@@ -14,10 +14,10 @@ namespace FootballScoreAPI.Controllers
     {
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<Goal>> Get()
-        {
-            BBCScrapingService bbcScrapingService = new BBCScrapingService();
-            return bbcScrapingService.ScrapeScores(new DateTime(2019, 8, 3));
+        public ActionResult Get()
+        {          
+
+            return new OkResult();
         }
 
         // GET api/values/5

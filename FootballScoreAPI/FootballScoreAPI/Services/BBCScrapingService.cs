@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace FootballScoreAPI.Services
 {
-    public class BBCScrapingService
+    public class BBCScrapingService : IScrapingService
     {
         private static ScrapingBrowser browser;
 
-        public List<Goal> ScrapeScores(DateTime date)
+        public List<Goal> ScrapeGoals(DateTime date)
         {
             SetSecurityProtocols();
             SetBrowser();
@@ -62,69 +62,73 @@ namespace FootballScoreAPI.Services
 
                 string competition = matchPage.Html.CssSelect(".fixture__title").First().InnerText;
 
-                var teams = matchPage.Html.CssSelect(".fixture__wrapper").First().CssSelect("abbr").ToList();
-
-                string homeTeam = teams[0].Attributes["title"].Value;
-                string awayTeam = teams[1].Attributes["title"].Value;
-
-                var homeGoals = matchPage.Html.CssSelect(".fixture__scorers-home").First().SelectNodes("li");
-
-                if (homeGoals != null)
+                if (competition.ToUpper() == "CHAMPIONSHIP" || competition.ToUpper() == "LEAGUE ONE" || competition.ToUpper() == "LEAGUE TWO"
+                || competition.ToUpper() == "FA CUP" || competition.ToUpper() == "EFL CUP")
                 {
-                    foreach (var homeGoal in homeGoals)
+                    var teams = matchPage.Html.CssSelect(".fixture__wrapper").First().CssSelect("abbr").ToList();
+
+                    string homeTeam = teams[0].Attributes["title"].Value;
+                    string awayTeam = teams[1].Attributes["title"].Value;
+
+                    var homeGoals = matchPage.Html.CssSelect(".fixture__scorers-home").First().SelectNodes("li");
+
+                    if (homeGoals != null)
                     {
-                        var goalDetails = homeGoal.SelectNodes("span");
-
-                        if (!goalDetails[2].FirstChild.InnerText.Contains("Dismissed"))
+                        foreach (var homeGoal in homeGoals)
                         {
-                            var scorer = goalDetails[0].InnerText;
-                            var minute = goalDetails[2].SelectNodes("span")[0].InnerText;
-                            var ownGoal = goalDetails[2].SelectNodes("span")[2].InnerText.Replace(" ", string.Empty) == "og" ? true : false;
+                            var goalDetails = homeGoal.SelectNodes("span");
 
-                            var goal = new Goal
+                            if (!goalDetails[2].FirstChild.InnerText.Contains("Dismissed"))
                             {
-                                Date = date,
-                                Competition = competition,
-                                HomeTeam = homeTeam,
-                                AwayTeam = awayTeam,
-                                For = homeTeam,
-                                Scorer = scorer,
-                                Minute = int.Parse(minute.Substring(0,minute.IndexOf("&"))),
-                                OwnGoal = ownGoal
-                            };
+                                var scorer = goalDetails[0].InnerText;
+                                var minute = goalDetails[2].SelectNodes("span")[0].InnerText;
+                                var ownGoal = goalDetails[2].SelectNodes("span")[2].InnerText.Replace(" ", string.Empty) == "og" ? true : false;
 
-                            goals.Add(goal);
+                                var goal = new Goal
+                                {
+                                    Date = date,
+                                    Competition = competition,
+                                    HomeTeam = homeTeam,
+                                    AwayTeam = awayTeam,
+                                    For = homeTeam,
+                                    Scorer = scorer,
+                                    Minute = int.Parse(minute.Substring(0, minute.IndexOf("&"))),
+                                    OwnGoal = ownGoal
+                                };
+
+                                goals.Add(goal);
+                            }
                         }
                     }
-                }
 
-                var awayGoals = matchPage.Html.CssSelect(".fixture__scorers-away").First().SelectNodes("li");
+                    var awayGoals = matchPage.Html.CssSelect(".fixture__scorers-away").First().SelectNodes("li");
 
-                if (awayGoals != null)
-                {
-                    foreach (var awayGoal in awayGoals)
+                    if (awayGoals != null)
                     {
-                        var goalDetails = awayGoal.SelectNodes("span");
-
-                        if (!goalDetails[2].FirstChild.InnerText.Contains("Dismissed"))
+                        foreach (var awayGoal in awayGoals)
                         {
-                            var scorer = goalDetails[0].InnerText;
-                            var minute = goalDetails[2].SelectNodes("span")[0].InnerText.Replace("'", string.Empty);
-                            var ownGoal = goalDetails[2].SelectNodes("span")[2].InnerText.Replace(" ", string.Empty) == "og" ? true : false;
+                            var goalDetails = awayGoal.SelectNodes("span");
 
-                            var goal = new Goal
+                            if (!goalDetails[2].FirstChild.InnerText.Contains("Dismissed"))
                             {
-                                Date = date,
-                                Competition = competition,
-                                HomeTeam = homeTeam,
-                                AwayTeam = awayTeam,
-                                For = awayTeam,
-                                Scorer = scorer,
-                                Minute = int.Parse(minute.Substring(0, minute.IndexOf("&"))),
-                                OwnGoal = ownGoal
-                            };
+                                var scorer = goalDetails[0].InnerText;
+                                var minute = goalDetails[2].SelectNodes("span")[0].InnerText.Replace("'", string.Empty);
+                                var ownGoal = goalDetails[2].SelectNodes("span")[2].InnerText.Replace(" ", string.Empty) == "og" ? true : false;
 
-                            goals.Add(goal);
+                                var goal = new Goal
+                                {
+                                    Date = date,
+                                    Competition = competition,
+                                    HomeTeam = homeTeam,
+                                    AwayTeam = awayTeam,
+                                    For = awayTeam,
+                                    Scorer = scorer,
+                                    Minute = int.Parse(minute.Substring(0, minute.IndexOf("&"))),
+                                    OwnGoal = ownGoal
+                                };
+
+                                goals.Add(goal);
+                            }
                         }
                     }
                 }
