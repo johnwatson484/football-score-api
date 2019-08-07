@@ -1,6 +1,6 @@
-﻿using System;
+﻿using FootballScoreAPI.Models;
+using System;
 using System.Collections.Generic;
-using FootballScoreAPI.Models;
 
 namespace FootballScoreAPI.Services
 {

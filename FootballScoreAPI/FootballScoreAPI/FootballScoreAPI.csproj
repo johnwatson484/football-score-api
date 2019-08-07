@@ -9,12 +9,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.5" />
     <PackageReference Include="Hangfire.Core" Version="1.7.5" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.7.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
-    <PackageReference Include="ScrapySharp" Version="3.0.0" />
+    <PackageReference Include="Selenium.Chrome.WebDriver" Version="74.0.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="76.0.3809.68" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FootballScoreAPI.Models;
+﻿using FootballScoreAPI.Models;
 using FootballScoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace FootballScoreAPI.Controllers
 {
@@ -14,10 +12,9 @@ namespace FootballScoreAPI.Controllers
     {
         // GET api/values
         [HttpGet]
-        public ActionResult Get()
-        {          
-
-            return new OkResult();
+        public ActionResult<List<Goal>> Get()
+        {
+            return new BBCScrapingService().ScrapeGoals(new DateTime(2019, 8, 3));
         }
 
         // GET api/values/5

@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FootballScoreAPI.Data;
+﻿using FootballScoreAPI.Data;
 using FootballScoreAPI.Services;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Hangfire;
-using Hangfire.SqlServer;
-using System.Diagnostics;
+using System;
 
 namespace FootballScoreAPI
 {
@@ -58,7 +51,7 @@ namespace FootballScoreAPI
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IBackgroundJobClient backgroundJobs, FootballScoreContext context, IScrapingService scrapingService, IHostingEnvironment env)
-        {            
+        {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -69,7 +62,7 @@ namespace FootballScoreAPI
             }
 
             app.UseHangfireDashboard();
-            RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).Refresh(), "0 * * * *");
+            // RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).Refresh(), "0 * * * *");
 
             app.UseHttpsRedirection();
             app.UseMvc();

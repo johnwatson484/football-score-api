@@ -1,16 +1,13 @@
 ﻿using FootballScoreAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FootballScoreAPI.Services
 {
     public class RefreshService : IRefreshService
     {
-        FootballScoreContext context;
-        IScrapingService scrapingService;
+        readonly FootballScoreContext context;
+        readonly IScrapingService scrapingService;
 
         public RefreshService(FootballScoreContext context, IScrapingService scrapingService)
         {
