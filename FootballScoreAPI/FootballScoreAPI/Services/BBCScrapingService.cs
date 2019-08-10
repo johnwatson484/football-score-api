@@ -1,6 +1,6 @@
 ﻿using FootballScoreAPI.Models;
 using OpenQA.Selenium;
-using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace FootballScoreAPI.Services
 {
     public class BBCScrapingService : IScrapingService
     {
-        private static InternetExplorerDriver driver;
+        private static ChromeDriver driver;
 
         private static readonly List<string> leagues = new List<string>
         {
@@ -31,7 +31,7 @@ namespace FootballScoreAPI.Services
 
         private void SetBrowser()
         {
-            driver = new InternetExplorerDriver(AppDomain.CurrentDomain.BaseDirectory);
+            driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory);
         }
 
         private void CloseBrowser()
@@ -57,7 +57,6 @@ namespace FootballScoreAPI.Services
             var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
 
             driver.Navigate().GoToUrl(new Uri(string.Format("{0}/sport/football/scores-fixtures/{1}", root, date.ToString("yyyy-MM-dd"))));
-            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector(".qa-match-block")));
 
             driver.FindElementByClassName("qa-show-scorers-button").Click();                        
             wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector(".qa-match-block")));
