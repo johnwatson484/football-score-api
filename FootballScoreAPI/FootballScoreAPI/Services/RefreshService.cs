@@ -1,6 +1,7 @@
 ﻿using FootballScoreAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 
 namespace FootballScoreAPI.Services
 {
@@ -17,17 +18,28 @@ namespace FootballScoreAPI.Services
 
         public void Refresh()
         {
-            context.Goals.RemoveRange(context.Goals);
-            context.Database.ExecuteSqlCommand("DBCC CHECKIDENT('dbo.Goals', RESEED, 0)");
+            context.Database.ExecuteSqlCommand("TRUNCATE TABLE dbo.Goals");
 
             DateTime endDate = DateTime.Now.Date;
             DateTime startDate = endDate.AddDays(-10);
 
-            for (DateTime date = startDate; date <= endDate; date.AddDays(1))
+            for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
             {
                 var goals = scrapingService.ScrapeGoals(date);
                 context.Goals.AddRange(goals);
             }
+
+            context.SaveChanges();
+        }
+
+        public void RefreshDay()
+        {
+            DateTime date = DateTime.Now.Date;
+
+            context.Goals.RemoveRange(context.Goals.Where(x => x.Date == date));
+
+            var goals = scrapingService.ScrapeGoals(date);
+            context.Goals.AddRange(goals);
 
             context.SaveChanges();
         }

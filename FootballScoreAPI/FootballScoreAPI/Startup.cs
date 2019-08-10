@@ -62,7 +62,8 @@ namespace FootballScoreAPI
             }
 
             app.UseHangfireDashboard();
-            // RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).Refresh(), "0 * * * *");
+            RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).Refresh(), "0 23 * * *");
+            RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).RefreshDay(), "0,5,10,15,20,25,30,35,40,45,50,55 15-17 * * 6");
 
             app.UseHttpsRedirection();
             app.UseMvc();
