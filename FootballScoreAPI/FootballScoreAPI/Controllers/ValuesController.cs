@@ -1,6 +1,7 @@
 ﻿using FootballScoreAPI.Models;
 using FootballScoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -10,11 +11,27 @@ namespace FootballScoreAPI.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        ILogger<ValuesController> logger;
+
+        public ValuesController(ILogger<ValuesController> logger)
+        {
+            this.logger = logger;
+        }
+
         // GET api/values
         [HttpGet]
         public ActionResult<List<Goal>> Get()
         {
-            return new BBCScrapingService().ScrapeGoals(new DateTime(2019, 8, 3));
+            try
+            {
+                return new BBCScrapingService().ScrapeGoals(new DateTime(2019, 8, 3));
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "Unable to retrieve scores");
+
+                throw;
+            }
         }
 
         // GET api/values/5
