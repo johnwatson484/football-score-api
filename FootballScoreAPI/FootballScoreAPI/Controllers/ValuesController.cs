@@ -22,16 +22,8 @@ namespace FootballScoreAPI.Controllers
         [HttpGet]
         public ActionResult<List<Goal>> Get()
         {
-            try
-            {
-                return new BBCScrapingService().ScrapeGoals(new DateTime(2019, 8, 3));
-            }
-            catch(Exception ex)
-            {
-                logger.LogError(ex, "Unable to retrieve scores");
+            return new BBCScrapingService().ScrapeGoals(new DateTime(2019, 8, 3));
 
-                throw;
-            }
         }
 
         // GET api/values/5
