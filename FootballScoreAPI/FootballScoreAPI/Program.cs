@@ -37,7 +37,7 @@ namespace FootballScoreAPI
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.AddConsole();
+                    logging.AddEventLog();
                 });
     }
 }
