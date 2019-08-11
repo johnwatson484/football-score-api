@@ -20,9 +20,9 @@ namespace FootballScoreAPI.Controllers
 
         // GET api/values
         [HttpGet]
-        public ActionResult<List<Goal>> Get()
+        public ActionResult<List<Fixture>> Get()
         {
-            return new BBCScrapingService().ScrapeGoals(new DateTime(2019, 8, 3));
+            return new BBCScrapingService().ScrapeScores(new DateTime(2019, 8, 3));
 
         }
 

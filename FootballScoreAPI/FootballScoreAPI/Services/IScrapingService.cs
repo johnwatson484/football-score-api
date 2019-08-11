@@ -6,6 +6,6 @@ namespace FootballScoreAPI.Services
 {
     public interface IScrapingService
     {
-        List<Goal> ScrapeGoals(DateTime date);
+        List<Fixture> ScrapeScores(DateTime date);
     }
 }

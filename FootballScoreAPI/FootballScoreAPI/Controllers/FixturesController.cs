@@ -12,26 +12,26 @@ namespace FootballScoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GoalsController : ControllerBase
+    public class FixturesController : ControllerBase
     {
         private readonly FootballScoreContext context;
 
-        public GoalsController(FootballScoreContext context)
+        public FixturesController(FootballScoreContext context)
         {
             this.context = context;
         }
 
         // GET: api/Goals
         [HttpGet]
-        public IEnumerable<Goal> GetGoals(DateTime startDate, DateTime? endDate = null)
+        public IEnumerable<Fixture> GetScores(DateTime startDate, DateTime? endDate = null)
         {
             if (endDate == null)
             {
                 endDate = startDate;
             }
 
-            return context.Goals.Where(x => x.Date >= startDate && x.Date <= endDate)
-                .OrderBy(x=>x.Date).ThenBy(x=>x.Minute);
+            return context.Fixtures.Include(x => x.Goals).Where(x => x.Date >= startDate && x.Date <= endDate)
+                .OrderBy(x => x.Date);
         }
     }
 }

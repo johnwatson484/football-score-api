@@ -20,13 +20,13 @@ namespace FootballScoreAPI.Services
             "LEAGUE TWO"
         };
 
-        public List<Goal> ScrapeGoals(DateTime date)
+        public List<Fixture> ScrapeScores(DateTime date)
         {
             SetSecurityProtocols();
             SetBrowser();
-            var goals = GetGoals(date);
+            var fixtures = GetScores(date);
             CloseBrowser();
-            return goals;
+            return fixtures;
         }
 
         private void SetBrowser()
@@ -48,9 +48,9 @@ namespace FootballScoreAPI.Services
                 | SecurityProtocolType.Tls12;
         }
 
-        private List<Goal> GetGoals(DateTime date)
+        private List<Fixture> GetScores(DateTime date)
         {
-            List<Goal> goals = new List<Goal>();
+            List<Fixture> fixtures = new List<Fixture>();
 
             string root = "https://www.bbc.com";
 
@@ -58,7 +58,7 @@ namespace FootballScoreAPI.Services
 
             driver.Navigate().GoToUrl(new Uri(string.Format("{0}/sport/football/scores-fixtures/{1}", root, date.ToString("yyyy-MM-dd"))));
 
-            driver.FindElementByClassName("qa-show-scorers-button").Click();                        
+            driver.FindElementByClassName("qa-show-scorers-button").Click();
             wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector(".qa-match-block")));
 
             var competitions = driver.FindElementsByClassName("qa-match-block");
@@ -78,6 +78,25 @@ namespace FootballScoreAPI.Services
                 {
                     string homeTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--home")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
                     string awayTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--away")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
+
+                    string homeScore = match.FindElement(By.ClassName("sp-c-fixture__number--home")).Text;
+                    string awayScore = match.FindElement(By.ClassName("sp-c-fixture__number--away")).Text;
+
+                    if (char.IsLetter(homeScore[0]))
+                    {
+                        continue;
+                    }
+
+                    Fixture fixture = new Fixture
+                    {
+                        Date = date,
+                        Competition = name,
+                        HomeTeam = homeTeam,
+                        AwayTeam = awayTeam,
+                        HomeScore = int.Parse(homeScore),
+                        AwayScore = int.Parse(awayScore),
+                        Goals = new List<Goal>()
+                    };
 
                     ReadOnlyCollection<IWebElement> homeGoals;
 
@@ -103,17 +122,13 @@ namespace FootballScoreAPI.Services
 
                             var goal = new Goal
                             {
-                                Date = date,
-                                Competition = name,
-                                HomeTeam = homeTeam,
-                                AwayTeam = awayTeam,
                                 For = homeTeam,
                                 Scorer = scorer,
                                 Minute = int.Parse(minute.Substring(0, minute.IndexOf("+") != -1 ? minute.IndexOf("+") : minute.Length)),
                                 OwnGoal = ownGoal
                             };
 
-                            goals.Add(goal);
+                            fixture.Goals.Add(goal);
                         }
                     }
 
@@ -141,23 +156,20 @@ namespace FootballScoreAPI.Services
 
                             var goal = new Goal
                             {
-                                Date = date,
-                                Competition = name,
-                                HomeTeam = homeTeam,
-                                AwayTeam = awayTeam,
                                 For = awayTeam,
                                 Scorer = scorer,
                                 Minute = int.Parse(minute.Substring(0, minute.IndexOf("+") != -1 ? minute.IndexOf("+") : minute.Length)),
                                 OwnGoal = ownGoal
                             };
 
-                            goals.Add(goal);
+                            fixture.Goals.Add(goal);
                         }
                     }
+                    fixtures.Add(fixture);
                 }
             }
 
-            return goals;
+            return fixtures;
         }
     }
 }

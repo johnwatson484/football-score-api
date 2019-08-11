@@ -1,10 +1,12 @@
-﻿namespace FootballScoreAPI.Data
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace FootballScoreAPI.Data
 {
     public class DbInitializer
     {
         public static void Initialize(FootballScoreContext context)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
         }
     }
 }
