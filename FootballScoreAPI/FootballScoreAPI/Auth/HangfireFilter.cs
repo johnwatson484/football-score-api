@@ -10,9 +10,19 @@ namespace FootballScoreAPI.Auth
     {
         public bool Authorize(DashboardContext context)
         {
-            var httpContext = context.GetHttpContext();
+            var connection = context.GetHttpContext().Connection;
 
-            if(httpContext.Request.Host.Value.StartsWith("localhost:"))
+            if (connection.RemoteIpAddress == null)
+            {
+                return false;
+            }
+
+            if (connection.RemoteIpAddress.ToString() == "127.0.0.1" || connection.RemoteIpAddress.ToString() == "::1")
+            {
+                return true;
+            }
+
+            if (connection.RemoteIpAddress == connection.LocalIpAddress)
             {
                 return true;
             }
