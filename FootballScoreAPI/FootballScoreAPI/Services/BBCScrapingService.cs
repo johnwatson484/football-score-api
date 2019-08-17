@@ -17,7 +17,9 @@ namespace FootballScoreAPI.Services
         {
             "CHAMPIONSHIP",
             "LEAGUE ONE",
-            "LEAGUE TWO"
+            "LEAGUE TWO",
+            "THE FA CUP",
+            "EFL CUP"
         };
 
         public List<Fixture> ScrapeScores(DateTime date)
