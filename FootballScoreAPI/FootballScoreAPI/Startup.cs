@@ -44,7 +44,8 @@ namespace FootballScoreAPI
 
             services.AddHangfireServer();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddScoped<IRefreshService, RefreshService>();
             services.AddScoped<IScrapingService, BBCScrapingService>();
@@ -67,7 +68,7 @@ namespace FootballScoreAPI
                 Authorization = new[] { new HangfireFilter() }
             });
             RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).Refresh(), "0 23 * * *");
-            RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).RefreshDay(), "0,5,10,15,20,25,30,35,40,45,50,55 15-17 * * 6");
+            RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).RefreshDay(), "0,5,10,15,20,25,30,35,40,45,50,55 15-16 * * 6");
 
             app.UseHttpsRedirection();
             app.UseMvc();

@@ -23,15 +23,17 @@ namespace FootballScoreAPI.Controllers
 
         // GET: api/Goals
         [HttpGet]
-        public IEnumerable<Fixture> GetScores(DateTime startDate, DateTime? endDate = null)
+        public List<Fixture> GetScores(DateTime startDate, DateTime? endDate = null)
         {
             if (endDate == null)
             {
                 endDate = startDate;
             }
 
-            return context.Fixtures.Include(x => x.Goals).Where(x => x.Date >= startDate && x.Date <= endDate)
-                .OrderBy(x => x.Date);
+            var fixtures = context.Fixtures.Include(x => x.Goals).Where(x => x.Date >= startDate && x.Date <= endDate)
+                .OrderBy(x => x.Date).ToList();
+
+            return fixtures;
         }
     }
 }
