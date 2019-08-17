@@ -1,4 +1,5 @@
 ﻿using FootballScoreAPI.Data;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace FootballScoreAPI.Services
             this.scrapingService = scrapingService;
         }
 
+        [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        [DisableConcurrentExecution(10)]
         public void Refresh()
         {
             context.Database.ExecuteSqlCommand("DELETE FROM dbo.Fixtures");
@@ -34,6 +37,8 @@ namespace FootballScoreAPI.Services
             context.SaveChanges();
         }
 
+        [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+        [DisableConcurrentExecution(10)]
         public void RefreshDay()
         {
             DateTime date = DateTime.Now.Date;
