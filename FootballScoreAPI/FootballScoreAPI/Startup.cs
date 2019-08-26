@@ -1,8 +1,5 @@
-﻿using FootballScoreAPI.Auth;
-using FootballScoreAPI.Data;
+﻿using FootballScoreAPI.Data;
 using FootballScoreAPI.Services;
-using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -27,23 +24,7 @@ namespace FootballScoreAPI
         {
             services.AddDbContext<FootballScoreContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("FootballScoreContext")));
-
-            services.AddHangfire(configuration => configuration
-                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(Configuration.GetConnectionString("FootballScoreContext"), new SqlServerStorageOptions
-                {
-                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-                    QueuePollInterval = TimeSpan.Zero,
-                    UseRecommendedIsolationLevel = true,
-                    UsePageLocksOnDequeue = true,
-                    DisableGlobalLocks = true
-                }));
-
-            services.AddHangfireServer();
-
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
@@ -52,7 +33,7 @@ namespace FootballScoreAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IBackgroundJobClient backgroundJobs, FootballScoreContext context, IScrapingService scrapingService, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -62,13 +43,6 @@ namespace FootballScoreAPI
             {
                 app.UseHsts();
             }
-
-            app.UseHangfireDashboard("/hangfire", new DashboardOptions
-            {
-                Authorization = new[] { new HangfireFilter() }
-            });
-            RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).Refresh(), "0 23 * * *");
-            RecurringJob.AddOrUpdate(() => new RefreshService(context, scrapingService).RefreshDay(), "0,5,10,15,20,25,30,35,40,45,50,55 15-16 * * 6");
 
             app.UseHttpsRedirection();
             app.UseMvc();
