@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FootballScoreAPI", "Footbal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FootballScoreAPI.Tests", "FootballScoreAPI.Tests\FootballScoreAPI.Tests.csproj", "{766A7E6A-09A8-4AA6-8BEF-6B2C49E82FAC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballScoreAPI.Refresh", "FootballScoreAPI.Refresh\FootballScoreAPI.Refresh.csproj", "{BC8083F3-4D86-407D-9D6D-F22AB93D910F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{766A7E6A-09A8-4AA6-8BEF-6B2C49E82FAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{766A7E6A-09A8-4AA6-8BEF-6B2C49E82FAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{766A7E6A-09A8-4AA6-8BEF-6B2C49E82FAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC8083F3-4D86-407D-9D6D-F22AB93D910F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC8083F3-4D86-407D-9D6D-F22AB93D910F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC8083F3-4D86-407D-9D6D-F22AB93D910F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC8083F3-4D86-407D-9D6D-F22AB93D910F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

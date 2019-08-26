@@ -3,5 +3,6 @@
     public interface IRefreshService
     {
         void Refresh();
+        void RefreshDay();
     }
 }
