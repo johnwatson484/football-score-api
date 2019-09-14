@@ -80,47 +80,53 @@ namespace FootballScoreAPI.Services
 
                 foreach (var match in matches)
                 {
-                    string homeTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--home")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
-                    string awayTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--away")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
-
-                    string homeScore = match.FindElement(By.ClassName("sp-c-fixture__number--home")).Text;
-                    string awayScore = match.FindElement(By.ClassName("sp-c-fixture__number--away")).Text;
-
-                    if (char.IsLetter(homeScore[0]))
-                    {
-                        continue;
-                    }
-
-                    Fixture fixture = new Fixture
-                    {
-                        Date = date,
-                        Competition = name,
-                        HomeTeam = homeTeam,
-                        AwayTeam = awayTeam,
-                        HomeScore = int.Parse(homeScore),
-                        AwayScore = int.Parse(awayScore),
-                        Goals = new List<Goal>()
-                    };
-
-                    var homeGoals = GetGoalElements(match, "sp-c-fixture__scorers-home");
-
-                    foreach (var homeGoal in homeGoals)
-                    {
-                        AddGoal(homeTeam, fixture, homeGoal);
-                    }
-
-                    var awayGoals = GetGoalElements(match, "sp-c-fixture__scorers-away");
-
-                    foreach (var awayGoal in awayGoals)
-                    {
-                        AddGoal(awayTeam, fixture, awayGoal);
-                    }
-
-                    fixtures.Add(fixture);
+                    AddFixture(date, fixtures, name, match);
                 }
             }
 
             return fixtures;
+        }
+
+        private static void AddFixture(DateTime date, List<Fixture> fixtures, string name, IWebElement match)
+        {
+            string homeScore = match.FindElement(By.ClassName("sp-c-fixture__number--home")).Text;
+            string awayScore = match.FindElement(By.ClassName("sp-c-fixture__number--away")).Text;
+
+            // If match postphoned or abandoned then ignore
+            if (char.IsLetter(homeScore[0]))
+            {
+                return;
+            }
+
+            string homeTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--home")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
+            string awayTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--away")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
+
+            Fixture fixture = new Fixture
+            {
+                Date = date,
+                Competition = name,
+                HomeTeam = homeTeam,
+                AwayTeam = awayTeam,
+                HomeScore = int.Parse(homeScore),
+                AwayScore = int.Parse(awayScore),
+                Goals = new List<Goal>()
+            };
+
+            var homeGoals = GetGoalElements(match, "sp-c-fixture__scorers-home");
+
+            foreach (var homeGoal in homeGoals)
+            {
+                AddGoal(homeTeam, fixture, homeGoal);
+            }
+
+            var awayGoals = GetGoalElements(match, "sp-c-fixture__scorers-away");
+
+            foreach (var awayGoal in awayGoals)
+            {
+                AddGoal(awayTeam, fixture, awayGoal);
+            }
+
+            fixtures.Add(fixture);
         }
 
         private void NavigateToPage(DateTime date)
