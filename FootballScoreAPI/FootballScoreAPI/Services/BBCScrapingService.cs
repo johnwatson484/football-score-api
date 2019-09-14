@@ -11,7 +11,9 @@ namespace FootballScoreAPI.Services
 {
     public class BBCScrapingService : IScrapingService
     {
+        private const string root = "https://www.bbc.com";
         private static ChromeDriver driver;
+        private WebDriverWait wait;
 
         private static readonly List<string> leagues = new List<string>
         {
@@ -27,6 +29,7 @@ namespace FootballScoreAPI.Services
         {
             SetSecurityProtocols();
             SetBrowser();
+            SetWait();
             var fixtures = GetScores(date);
             CloseBrowser();
             return fixtures;
@@ -35,6 +38,11 @@ namespace FootballScoreAPI.Services
         private void SetBrowser()
         {
             driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory);
+        }
+
+        private void SetWait()
+        {
+            wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
         }
 
         private void CloseBrowser()
@@ -53,16 +61,9 @@ namespace FootballScoreAPI.Services
 
         private List<Fixture> GetScores(DateTime date)
         {
+            NavigateToPage(date);
+
             List<Fixture> fixtures = new List<Fixture>();
-
-            string root = "https://www.bbc.com";
-
-            var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
-
-            driver.Navigate().GoToUrl(new Uri(string.Format("{0}/sport/football/scores-fixtures/{1}", root, date.ToString("yyyy-MM-dd"))));
-
-            driver.FindElementByClassName("qa-show-scorers-button").Click();
-            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector(".qa-match-block")));
 
             var competitions = driver.FindElementsByClassName("qa-match-block");
 
@@ -101,78 +102,66 @@ namespace FootballScoreAPI.Services
                         Goals = new List<Goal>()
                     };
 
-                    ReadOnlyCollection<IWebElement> homeGoals;
-
-                    try
-                    {
-                        homeGoals = match.FindElement(By.ClassName("sp-c-fixture__scorers-home")).FindElements(By.CssSelector("li"));
-                    }
-                    catch (NoSuchElementException)
-                    {
-                        homeGoals = new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-                    }
+                    var homeGoals = GetGoalElements(match, "sp-c-fixture__scorers-home");
 
                     foreach (var homeGoal in homeGoals)
                     {
-                        var goalDetails = homeGoal.FindElements(By.CssSelector("span"));
-
-                        var dismissed = goalDetails[2].FindElements(By.CssSelector("i"));
-                        if (dismissed.Count == 0)
-                        {
-                            var scorer = goalDetails[0].Text;
-                            var minute = goalDetails[2].FindElements(By.CssSelector("span"))[0].Text.Replace("'", string.Empty);
-                            var ownGoal = goalDetails[2].FindElements(By.CssSelector("span"))[2].Text.Replace(" ", string.Empty) == "og" ? true : false;
-
-                            var goal = new Goal
-                            {
-                                For = homeTeam,
-                                Scorer = scorer,
-                                Minute = int.Parse(minute.Substring(0, minute.IndexOf("+") != -1 ? minute.IndexOf("+") : minute.Length)),
-                                OwnGoal = ownGoal
-                            };
-
-                            fixture.Goals.Add(goal);
-                        }
+                        AddGoal(homeTeam, fixture, homeGoal);
                     }
 
-                    ReadOnlyCollection<IWebElement> awayGoals;
-
-                    try
-                    {
-                        awayGoals = match.FindElement(By.ClassName("sp-c-fixture__scorers-away")).FindElements(By.CssSelector("li"));
-                    }
-                    catch (NoSuchElementException)
-                    {
-                        awayGoals = new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-                    }
+                    var awayGoals = GetGoalElements(match, "sp-c-fixture__scorers-away");
 
                     foreach (var awayGoal in awayGoals)
                     {
-                        var goalDetails = awayGoal.FindElements(By.CssSelector("span"));
-
-                        var dismissed = goalDetails[2].FindElements(By.CssSelector("i"));
-                        if (dismissed.Count == 0)
-                        {
-                            var scorer = goalDetails[0].Text;
-                            var minute = goalDetails[2].FindElements(By.CssSelector("span"))[0].Text.Replace("'", string.Empty);
-                            var ownGoal = goalDetails[2].FindElements(By.CssSelector("span"))[2].Text.Replace(" ", string.Empty) == "og" ? true : false;
-
-                            var goal = new Goal
-                            {
-                                For = awayTeam,
-                                Scorer = scorer,
-                                Minute = int.Parse(minute.Substring(0, minute.IndexOf("+") != -1 ? minute.IndexOf("+") : minute.Length)),
-                                OwnGoal = ownGoal
-                            };
-
-                            fixture.Goals.Add(goal);
-                        }
+                        AddGoal(awayTeam, fixture, awayGoal);
                     }
+
                     fixtures.Add(fixture);
                 }
             }
 
             return fixtures;
+        }
+
+        private void NavigateToPage(DateTime date)
+        {
+            driver.Navigate().GoToUrl(new Uri(string.Format("{0}/sport/football/scores-fixtures/{1}", root, date.ToString("yyyy-MM-dd"))));
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector(".qa-match-block")));
+            driver.FindElementByClassName("qa-show-scorers-button").Click();
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector(".qa-match-block")));
+        }
+
+        private static ReadOnlyCollection<IWebElement> GetGoalElements(IWebElement match, string className)
+        {
+            try
+            {
+                return match.FindElement(By.ClassName(className)).FindElements(By.CssSelector("li"));
+            }
+            catch (NoSuchElementException)
+            {
+                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+            }
+        }
+
+        private static void AddGoal(string team, Fixture fixture, IWebElement goalElement)
+        {
+            var goalDetails = goalElement.FindElements(By.CssSelector("span"));
+
+            var dismissed = goalDetails[2].FindElements(By.CssSelector("i"));
+            if (dismissed.Count == 0)
+            {
+                var scorer = goalDetails[0].Text;
+                var minute = goalDetails[2].FindElements(By.CssSelector("span"))[0].Text.Replace("'", string.Empty);
+                var ownGoal = goalDetails[2].FindElements(By.CssSelector("span"))[2].Text.Replace(" ", string.Empty) == "og" ? true : false;
+
+                fixture.Goals.Add(new Goal
+                {
+                    For = team,
+                    Scorer = scorer,
+                    Minute = int.Parse(minute.Substring(0, minute.IndexOf("+") != -1 ? minute.IndexOf("+") : minute.Length)),
+                    OwnGoal = ownGoal
+                });
+            }
         }
     }
 }
