@@ -30,10 +30,11 @@ namespace FootballScoreAPI.Controllers
                 endDate = startDate;
             }
 
-            var fixtures = context.Fixtures.Include(x => x.Goals).Where(x => x.Date >= startDate && x.Date <= endDate)
-                .OrderBy(x => x.Date).ToList();
-
-            return fixtures;
+            return context.Fixtures
+                .Include(x => x.Goals)
+                .Where(x => x.Date >= startDate && x.Date <= endDate)
+                .OrderBy(x => x.Date)
+                .ToList();
         }
     }
 }
