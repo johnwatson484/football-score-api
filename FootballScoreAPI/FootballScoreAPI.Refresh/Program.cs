@@ -25,7 +25,7 @@ namespace FootballScoreAPI.Refresh
                 Console.WriteLine("Refreshing All");
                 service.Refresh();
             }
-            if (args.Contains("-day"))
+            else if (args.Contains("-day"))
             {
                 Console.WriteLine("Refreshing day");
                 service.RefreshDay();
