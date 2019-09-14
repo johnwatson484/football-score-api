@@ -15,6 +15,7 @@ namespace FootballScoreAPI.Services
 
         private static readonly List<string> leagues = new List<string>
         {
+            "PREMIER LEAGUE",
             "CHAMPIONSHIP",
             "LEAGUE ONE",
             "LEAGUE TWO",
