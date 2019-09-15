@@ -112,21 +112,22 @@ namespace FootballScoreAPI.Services
                 Goals = new List<Goal>()
             };
 
-            var homeGoals = GetGoalElements(match, "sp-c-fixture__scorers-home");
+            AddGoals(match, homeTeam, awayTeam, fixture);
 
-            foreach (var homeGoal in homeGoals)
+            fixtures.Add(fixture);
+        }
+
+        private static void AddGoals(IWebElement match, string homeTeam, string awayTeam, Fixture fixture)
+        {
+            foreach (var homeGoal in GetGoalElements(match, "sp-c-fixture__scorers-home"))
             {
                 AddGoal(homeTeam, fixture, homeGoal);
             }
 
-            var awayGoals = GetGoalElements(match, "sp-c-fixture__scorers-away");
-
-            foreach (var awayGoal in awayGoals)
+            foreach (var awayGoal in GetGoalElements(match, "sp-c-fixture__scorers-away"))
             {
                 AddGoal(awayTeam, fixture, awayGoal);
             }
-
-            fixtures.Add(fixture);
         }
 
         private void NavigateToPage(DateTime date)
