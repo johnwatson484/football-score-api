@@ -89,32 +89,39 @@ namespace FootballScoreAPI.Services
 
         private static void AddFixture(DateTime date, List<Fixture> fixtures, string name, IWebElement match)
         {
-            string homeScore = match.FindElement(By.ClassName("sp-c-fixture__number--home")).Text;
-            string awayScore = match.FindElement(By.ClassName("sp-c-fixture__number--away")).Text;
+            try
+            {
+                string homeScore = match.FindElement(By.ClassName("sp-c-fixture__number--home")).Text;
+                string awayScore = match.FindElement(By.ClassName("sp-c-fixture__number--away")).Text;
 
-            // If match postphoned or abandoned then ignore
-            if (char.IsLetter(homeScore[0]))
+                // If match postphoned or abandoned then ignore
+                if (char.IsLetter(homeScore[0]))
+                {
+                    return;
+                }
+
+                string homeTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--home")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
+                string awayTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--away")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
+
+                Fixture fixture = new Fixture
+                {
+                    Date = date,
+                    Competition = name,
+                    HomeTeam = homeTeam,
+                    AwayTeam = awayTeam,
+                    HomeScore = int.Parse(homeScore),
+                    AwayScore = int.Parse(awayScore),
+                    Goals = new List<Goal>()
+                };
+
+                AddGoals(match, homeTeam, awayTeam, fixture);
+
+                fixtures.Add(fixture);
+            }
+            catch (NoSuchElementException)
             {
                 return;
             }
-
-            string homeTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--home")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
-            string awayTeam = match.FindElement(By.ClassName("sp-c-fixture__team-name--away")).FindElement(By.CssSelector("abbr")).GetAttribute("title");
-
-            Fixture fixture = new Fixture
-            {
-                Date = date,
-                Competition = name,
-                HomeTeam = homeTeam,
-                AwayTeam = awayTeam,
-                HomeScore = int.Parse(homeScore),
-                AwayScore = int.Parse(awayScore),
-                Goals = new List<Goal>()
-            };
-
-            AddGoals(match, homeTeam, awayTeam, fixture);
-
-            fixtures.Add(fixture);
         }
 
         private static void AddGoals(IWebElement match, string homeTeam, string awayTeam, Fixture fixture)
